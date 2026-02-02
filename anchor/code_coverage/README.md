@@ -52,6 +52,8 @@ mkdir -p target/idl && anchor idl build -o target/idl/simple_anchor_app.json
 
 > **Note:** At the time of writing, best coverage results are achieved with SBPFv1 (dynamic stack frames), which is why we use `--arch v1`. Only with dynamic stack frames can we safely disable optimizations (`opt-level = 0`) without hitting stack size limits. The `--tools-version` can be v1.51 or higher, and `--debug` is required for coverage to work.
 
+> **Warning:** If you run `anchor clean` or `cargo clean`, you must repeat the custom build steps above. Do not use `anchor build` as it will revert to SBPFv0.
+
 ## Run Tests
 
 ### Start Surfpool

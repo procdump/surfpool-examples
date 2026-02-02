@@ -43,13 +43,12 @@ debug = true
 ### Build the Anchor project
 
 ```bash
-anchor build
-rm target/deploy/simple_anchor_app*
 anchor keys sync
 cargo build-sbf --tools-version v1.51 --arch v1 --debug
+mkdir -p target/idl && anchor idl build -o target/idl/simple_anchor_app.json
 ```
 
-> **Why this complexity?** Anchor is opinionated and always builds with SBPFv0. We run `anchor build` first to generate the IDL and other artifacts, then remove the compiled program and rebuild it manually with `cargo build-sbf` using SBPFv1 (`--arch v1`) for better coverage results.
+> **Why this complexity?** Anchor's `anchor build` always compiles with SBPFv0. Instead, we sync the keys, build directly with `cargo build-sbf` using SBPFv1 (`--arch v1`) for better coverage results, and generate the IDL separately with `anchor idl build`.
 
 > **Note:** At the time of writing, best coverage results are achieved with SBPFv1 (dynamic stack frames), which is why we use `--arch v1`. Only with dynamic stack frames can we safely disable optimizations (`opt-level = 0`) without hitting stack size limits. The `--tools-version` can be v1.51 or higher, and `--debug` is required for coverage to work.
 

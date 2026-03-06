@@ -59,10 +59,10 @@ mkdir -p target/idl && anchor idl build -o target/idl/simple_anchor_app.json
 Run this in the anchor project directory:
 
 ```bash
-SBF_TRACE_DIR=$PWD/target/sbf_trace_dir SBF_OUT_DIR=$PWD/target/deploy/debug surfpool-tracing start
+SBF_TRACE_DISASSEMBLE=true SBF_TRACE_DIR=$PWD/target/sbf_trace_dir surfpool-tracing start
 ```
 
-> **Note:** Setting `SBF_TRACE_DIR` is what signals `LiteSVM` to enable register tracing dumps. The `SBF_OUT_DIR=$PWD/target/deploy/debug` environment variable won't be necessary once Surfpool catches up with [LiteSVM's ELF data reading from program accounts](https://github.com/LiteSVM/litesvm/pull/278).
+> **Note:** Setting `SBF_TRACE_DIR` is what signals `LiteSVM` to enable register tracing dumps. Older versions of Surfpool may also require setting `SBF_OUT_DIR=$PWD/target/deploy/debug`.
 
 ### Deploy the program manually
 
@@ -93,6 +93,20 @@ Generate and view coverage report:
 ```bash
 sbpf-coverage --src-path=$PWD/programs/simple_anchor_app/src --sbf-path=$PWD/target/deploy/debug --sbf-trace-dir=$PWD/target/sbf_trace_dir
 genhtml --output-directory coverage target/sbf_trace_dir/*.lcov --rc branch_coverage=1 && open coverage/index.html
+```
+
+## Trace Disassembly
+
+Install sbpf-coverage if not already installed:
+
+```bash
+cargo install sbpf-coverage
+```
+
+Generate and view trace disassembly:
+
+```bash
+sbpf-coverage --src-path=$PWD/programs/simple_anchor_app/src --sbf-path=$PWD/target/deploy/debug --sbf-trace-dir=$PWD/target/sbf_trace_dir --trace-disassemble
 ```
 
 ## License

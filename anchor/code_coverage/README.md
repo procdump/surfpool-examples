@@ -5,52 +5,26 @@ A simple Anchor application for Solana with code coverage support using Surfpool
 ## Prerequisites
 
 - [Anchor](https://www.anchor-lang.com/)
-- [Surfpool](https://github.com/txtx/surfpool) with register-tracing feature
+- [Surfpool](https://github.com/txtx/surfpool) (register-tracing is enabled by default)
 - [sbpf-coverage](https://crates.io/crates/sbpf-coverage)
 - [lcov](https://github.com/linux-test-project/lcov) - for generating HTML coverage reports (`brew install lcov` on macOS, `apt install lcov` on Ubuntu, or `dnf install lcov` on Fedora)
 
 ## Build
 
-### Build Surfpool with register-tracing
+### Get Surfpool
 
-```bash
-git clone https://github.com/txtx/surfpool.git
-cd surfpool
-cargo build --features register-tracing --release
-```
-
-### Configure Cargo.toml for coverage
-
-To generate accurate coverage reports, you need to disable optimizations, enable debug symbols, and disable LTO in your workspace `Cargo.toml`:
-
-```toml
-[profile.release]
-overflow-checks = true
-lto = "off"
-codegen-units = 1
-debug = true
-opt-level = 0
-
-[profile.release.build-override]
-opt-level = 0
-incremental = false
-codegen-units = 1
-debug = true
-```
+Install Surfpool following the instructions at [github.com/txtx/surfpool](https://github.com/txtx/surfpool). Register-tracing is enabled by default, so no special feature flags are needed.
 
 ### Build the Anchor project
 
 ```bash
-cargo clean ; anchor keys sync
-cargo build-sbf --tools-version v1.53 --arch v1 --debug
-mkdir -p target/idl && anchor idl build -o target/idl/simple_anchor_app.json
+anchor build
+RUSTFLAGS="-Copt-level=0 -C strip=none -C debuginfo=2" cargo build-sbf --tools-version v1.54 --arch v1 --debug
 ```
 
-> **Why this complexity?** Anchor's `anchor build` always compiles with SBPFv0. Instead, we sync the keys, build directly with `cargo build-sbf` using SBPFv1 (`--arch v1`) for better coverage results, and generate the IDL separately with `anchor idl build`.
+> **Why two build steps?** `anchor build` generates the IDL. The second `cargo build-sbf` step rebuilds with SBPFv1 (`--arch v1`), debug symbols, and no optimizations — required for accurate coverage results.
 
 > **Note:** At the time of writing, best coverage results are achieved with SBPFv1 (dynamic stack frames), which is why we use `--arch v1`. Only with dynamic stack frames can we safely disable optimizations (`opt-level = 0`) without hitting stack size limits. The `--tools-version` can be v1.51 or higher, and `--debug` is required for coverage to work. Starting with `cargo-build-sbf` 4.0.0, the `--debug` flag outputs artifacts to `target/deploy/debug` instead of `target/deploy`. If you are using an older version of `cargo-build-sbf`, replace `target/deploy/debug` with `target/deploy` in all the steps.
-
-> **Warning:** If you run `anchor clean` or `cargo clean`, you must repeat the custom build steps above. Do not use `anchor build` as it will revert to SBPFv0.
 
 ## Run Tests
 
@@ -58,19 +32,19 @@ mkdir -p target/idl && anchor idl build -o target/idl/simple_anchor_app.json
 
 Run this in the anchor project directory:
 
-```bash
-SBF_TRACE_DISASSEMBLE=true SBF_TRACE_DIR=$PWD/target/sbf_trace_dir surfpool-tracing start
-```
-
-> **Note:** Setting `SBF_TRACE_DIR` is what signals `LiteSVM` to enable register tracing dumps. Older versions of Surfpool may also require setting `SBF_OUT_DIR=$PWD/target/deploy/debug`.
-
-### Deploy the program manually
+For code coverage only:
 
 ```bash
-solana config set --url localhost
-solana config get # !! ensure using localhost - debugging on mainnet is expensive !!
-solana program deploy target/deploy/debug/simple_anchor_app.so
+SBF_TRACE_DIR=$PWD/target/sbf_trace_dir surfpool start --artifacts-path ./target/deploy/debug --watch
 ```
+
+For code coverage with trace disassembly output:
+
+```bash
+SBF_TRACE_DISASSEMBLE=true SBF_TRACE_DIR=$PWD/target/sbf_trace_dir surfpool start --artifacts-path ./target/deploy/debug --watch
+```
+
+> **Note:** Setting `SBF_TRACE_DIR` is what signals `LiteSVM` to enable register tracing dumps. Adding `SBF_TRACE_DISASSEMBLE=true` additionally produces trace disassembly output.
 
 ### Run Anchor tests
 

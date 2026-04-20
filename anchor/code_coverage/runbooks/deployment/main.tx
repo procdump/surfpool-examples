@@ -7,13 +7,16 @@ addon "svm" {
     network_id = input.network_id
 }
 
-action "deploy_simple_anchor_app" "svm::deploy_program" {
-    description = "Deploy simple_anchor_app program"
-    program = svm::get_program_from_anchor_project("simple_anchor_app") 
+action "deploy_cpi_target" "svm::deploy_program" {
+    description = "Deploy cpi_target program"
+    program = svm::get_program_from_anchor_project("cpi_target")
     authority = signer.authority
     payer = signer.payer
-    // Optional: if you want to deploy the program via a cheatcode when targeting a Surfnet, set `instant_surfnet_deployment = true`
-    // Deploying via a cheatcode will write the program data directly to the program account, rather than sending transactions.
-    // This will make deployments instantaneous, but is deviating from how the deployments will take place on devnet/mainnet.
-    // instant_surfnet_deployment = true
+}
+
+action "deploy_simple_anchor_app" "svm::deploy_program" {
+    description = "Deploy simple_anchor_app program"
+    program = svm::get_program_from_anchor_project("simple_anchor_app")
+    authority = signer.authority
+    payer = signer.payer
 }

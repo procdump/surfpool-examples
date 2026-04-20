@@ -1,16 +1,40 @@
 use anchor_lang::prelude::*;
 
-declare_id!("BMTJhCbJoav38RGnm6nBZKKba9ScFTwpP4fJ9Regfgp3");
+declare_id!("4n4aoaKqR7gqXNqSbMejGf1SaJub4U349MY3ojeGvx7B");
+
+declare_program!(cpi_target);
+
+use cpi_target::cpi::accounts::Ping;
 
 #[program]
 pub mod simple_anchor_app {
     use super::*;
 
-    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
+    pub fn initialize(ctx: Context<Initialize>, cpi_target_program_id: Pubkey) -> Result<()> {
         msg!("Greetings from: {:?}", ctx.program_id);
+        msg!("CPI target: {:?}", cpi_target_program_id);
+
+        require_keys_eq!(
+            ctx.accounts.cpi_target_program.key(),
+            cpi_target_program_id
+        );
+
+        let cpi_ctx = CpiContext::new(
+            ctx.accounts.cpi_target_program.to_account_info(),
+            Ping {
+                payer: ctx.accounts.payer.to_account_info(),
+            },
+        );
+        cpi_target::cpi::ping(cpi_ctx)?;
+
         Ok(())
     }
 }
 
 #[derive(Accounts)]
-pub struct Initialize {}
+pub struct Initialize<'info> {
+    #[account(mut)]
+    pub payer: Signer<'info>,
+    /// CHECK: program id is validated against the instruction arg
+    pub cpi_target_program: AccountInfo<'info>,
+}

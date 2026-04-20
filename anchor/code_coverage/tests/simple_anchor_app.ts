@@ -3,14 +3,21 @@ import { Program } from "@coral-xyz/anchor";
 import { SimpleAnchorApp } from "../target/types/simple_anchor_app";
 
 describe("simple_anchor_app", () => {
-  // Configure the client to use the local cluster.
   anchor.setProvider(anchor.AnchorProvider.env());
 
   const program = anchor.workspace.simpleAnchorApp as Program<SimpleAnchorApp>;
+  const provider = anchor.getProvider();
+
+  const cpiTargetProgramId = anchor.workspace.cpiTarget.programId;
 
   it("Is initialized!", async () => {
-    // Add your test here.
-    const tx = await program.methods.initialize().rpc();
+    const tx = await program.methods
+      .initialize(cpiTargetProgramId)
+      .accounts({
+        payer: provider.publicKey,
+        cpiTargetProgram: cpiTargetProgramId,
+      })
+      .rpc();
     console.log("Your transaction signature", tx);
   });
 });

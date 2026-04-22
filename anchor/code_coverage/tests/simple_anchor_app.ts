@@ -10,14 +10,14 @@ describe("simple_anchor_app", () => {
 
   const cpiTargetProgramId = anchor.workspace.cpiTarget.programId;
 
-  it("Is initialized!", async () => {
+  it("Make a CPI", async () => {
     const tx = await program.methods
       .initialize(cpiTargetProgramId)
       .accounts({
         payer: provider.publicKey,
         cpiTargetProgram: cpiTargetProgramId,
       })
-      .rpc();
+      .rpc({ skipPreflight: true });
     console.log("Your transaction signature", tx);
   });
 });

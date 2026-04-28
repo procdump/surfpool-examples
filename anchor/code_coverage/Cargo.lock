@@ -2357,6 +2357,7 @@ name = "simple_anchor_app"
 version = "0.1.0"
 dependencies = [
  "anchor-lang",
+ "cpi_target",
  "litesvm",
 ]
 

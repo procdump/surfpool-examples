@@ -1,8 +1,6 @@
 use anchor_lang::prelude::*;
 
-declare_id!("4n4aoaKqR7gqXNqSbMejGf1SaJub4U349MY3ojeGvx7B");
-
-declare_program!(cpi_target);
+declare_id!("DZe3h9fANEm7sJajKkVouxJYHiGivhQCM9iS7mE5xZEN");
 
 use cpi_target::cpi::accounts::Ping;
 

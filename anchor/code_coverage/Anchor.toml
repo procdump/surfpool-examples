@@ -6,8 +6,8 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-cpi_target = "FLbnMiKXum2LXwLxnMdDuoqpTmzVFdsj3EEFGSE4xYKh"
-simple_anchor_app = "DZe3h9fANEm7sJajKkVouxJYHiGivhQCM9iS7mE5xZEN"
+cpi_target = "2JzXDoazyUya6hRGbdJiL95vrRPKLUqGpSQzp3TssDWa"
+simple_anchor_app = "EHKb6YaYPQFbmbopavw5KsjwFERR6YPQi9JQcBsUaJ1E"
 
 [provider]
 cluster = "localnet"
